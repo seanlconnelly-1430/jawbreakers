@@ -1,0 +1,243 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+    <script type="text/javascript">
+        window.onload = function () {
+            var canvas = document.getElementById("drawingCanvas");
+            var context = canvas.getContext("2d");
+            var numberOfBalls = document.getElementById("numberOfBalls");
+            var hit = document.getElementById("hit");
+            var started = false;
+            var ballId = 1;
+
+            function Ball(x, y, dx, dy, r, c) {
+                this.x = x;
+                this.y = y;
+                this.dx = dx;
+                this.dy = dy;
+                this.slope = dx / dy;
+                this.r = r;
+                this.fillColor = c;
+                this.id;
+            }
+
+            // array of ball objects
+            var balls = [];
+            
+
+            function addBall() {
+
+                // get the size
+                var radius = parseFloat(document.getElementById("size").value);
+                // get the amount
+                var amount = parseFloat(document.getElementById("amount").value);
+
+                for (var i = 1; i <= amount; i++) {
+                    var color = getColor();
+                    // create ball
+                    var ball = new Ball(getValue(), getValue(), getSpeed(), getSpeed(), radius, color);
+                    ball.id = ballId
+                    ballId++;
+                    // add to array
+                    balls.push(ball);
+                }
+
+                if (!started) {
+                    // start the sim
+                    setTimeout(drawFrame, 20);
+                    started = true;
+                }
+            }
+
+            function clear() {
+                balls = [];
+            }
+
+            function getColor() {
+                var r = Math.floor((Math.random() * 255) + 1);
+                var g = Math.floor((Math.random() * 255) + 1);
+                var b = Math.floor((Math.random() * 255) + 1);
+                var x = "rgb(" + r + "," + g + "," + b + ")";
+                return x;
+            }
+
+            function getValue() {
+                var x = Math.floor((Math.random() * canvas.width) + 1);
+                return x;
+            }
+
+            function getSpeed() {
+                // Return random speed between -2 and 2 for more variety
+                return (Math.random() * 4) - 2;
+            }
+
+            document.getElementById("addBall").onclick = function () {
+                addBall();
+            };
+            document.getElementById("clear").onclick = function () {
+                clear();
+            };
+            
+            function checkCollision(p1x, p1y, p1r, p2x, p2y, p2r){
+                var dx = p1x - p2x;
+                var dy = p1y - p2y;
+                var distance = Math.sqrt(dx * dx + dy * dy);
+                return distance < (p1r + p2r) * 1.0;
+            }
+
+            function handleCollision(ball1, ball2) {
+                // Store original speeds (magnitudes)
+                var speed1 = Math.sqrt(ball1.dx * ball1.dx + ball1.dy * ball1.dy);
+                var speed2 = Math.sqrt(ball2.dx * ball2.dx + ball2.dy * ball2.dy);
+                
+                // Calculate collision normal (vector from ball2 to ball1)
+                var dx = ball1.x - ball2.x;
+                var dy = ball1.y - ball2.y;
+                var distance = Math.sqrt(dx * dx + dy * dy);
+                
+                // Avoid division by zero
+                if (distance === 0) {
+                    distance = 0.01;
+                }
+                
+                // Normalize the collision normal
+                var nx = dx / distance;
+                var ny = dy / distance;
+                
+                // Add some randomness to the collision angle for variability
+                var randomAngle = (Math.random() - 0.5) * 0.4;
+                var cosAngle = Math.cos(randomAngle);
+                var sinAngle = Math.sin(randomAngle);
+                var rotatedNx = nx * cosAngle - ny * sinAngle;
+                var rotatedNy = nx * sinAngle + ny * cosAngle;
+                
+                // Calculate reflection direction for ball1 (bounce away from ball2)
+                // Reflect ball1's velocity across the normal
+                var dot1 = ball1.dx * rotatedNx + ball1.dy * rotatedNy;
+                var reflect1x = ball1.dx - 2 * dot1 * rotatedNx;
+                var reflect1y = ball1.dy - 2 * dot1 * rotatedNy;
+                
+                // Calculate reflection direction for ball2 (bounce away from ball1)
+                var dot2 = ball2.dx * (-rotatedNx) + ball2.dy * (-rotatedNy);
+                var reflect2x = ball2.dx - 2 * dot2 * (-rotatedNx);
+                var reflect2y = ball2.dy - 2 * dot2 * (-rotatedNy);
+                
+                // Normalize the reflection vectors
+                var mag1 = Math.sqrt(reflect1x * reflect1x + reflect1y * reflect1y);
+                var mag2 = Math.sqrt(reflect2x * reflect2x + reflect2y * reflect2y);
+                
+                // Preserve original speeds, only change direction
+                if (mag1 > 0) {
+                    ball1.dx = (reflect1x / mag1) * speed1;
+                    ball1.dy = (reflect1y / mag1) * speed1;
+                }
+                if (mag2 > 0) {
+                    ball2.dx = (reflect2x / mag2) * speed2;
+                    ball2.dy = (reflect2y / mag2) * speed2;
+                }
+                
+                // Separate balls to prevent sticking
+                var overlap = (ball1.r + ball2.r) - distance;
+                if (overlap > 0) {
+                    var separationX = (overlap / 2) * nx;
+                    var separationY = (overlap / 2) * ny;
+                    ball1.x += separationX;
+                    ball1.y += separationY;
+                    ball2.x -= separationX;
+                    ball2.y -= separationY;
+                }
+            }
+
+            function drawFrame() {
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                context.beginPath();
+                numberOfBalls.innerHTML = "Ball count: " + balls.length;
+                // go through ball array
+                for (var i = 0; i < balls.length; i++) {
+                    var ball = balls[i];
+
+                    for (var t = i + 1; t < balls.length; t++) {
+                        var test = balls[t];
+                        if (checkCollision(test.x, test.y, test.r, ball.x, ball.y, ball.r)) {
+                            handleCollision(ball, test);
+                        }
+                    }
+
+                    ball.x += ball.dx;
+                    ball.y += ball.dy;
+                    var dirX = ball.dx > 0 ? 1 : -1;
+                    var dirY = ball.dy > 0 ? 1 : -1
+                    var posX = ball.x + (ball.r * dirX);
+                    var posY = ball.y + (ball.r * dirY);
+
+                    // hits canvas edge        
+                    if ((posX > canvas.width) || (posX < 0)) {
+                        ball.dx = -ball.dx;
+                    }
+
+                    if ((posY > canvas.height) || (posY < 0)) {
+                        ball.dy = -ball.dy; // * 0.96;
+                    }
+
+                    context.beginPath();
+                    if (ball.r == 1) {
+                        context.strokeStyle = ball.fillColor;
+                    } else {
+                        context.strokeStyle = "black";
+                        context.fillStyle = ball.fillColor;
+                    }
+
+                    // draw the ball
+                    context.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
+                    context.lineWidth = 1;
+                    context.fill();
+                    context.stroke();
+                }
+                setTimeout(drawFrame, 20);
+            }
+        };
+    </script>
+</head>
+<body>
+    <canvas id="drawingCanvas" width="500" height="500"></canvas>
+    <br />
+    <button id="addBall">Add Ball</button>
+    <button id="clear">Clear Canvas</button>
+    <br />
+    Size
+    <select id="size">
+        <option value="1">1</option>
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="15">15</option>
+        <option value="20">20</option>
+        <option value="25">25</option>
+    </select>
+    Amount
+    <select id="amount">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="15">15</option>
+        <option value="20">20</option>
+        <option value="25">25</option>
+    </select>
+    <br />
+    <label id="numberOfBalls"></label>
+    <br />
+    <label id="hit"></label>
+    <br />
+    <label id="rectanglesList"></label>
+</body>
+</html>

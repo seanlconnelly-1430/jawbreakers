@@ -1,0 +1,257 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+    <script type="text/javascript">
+        window.onload = function () {
+            var canvas = document.getElementById("drawingCanvas");
+            var context = canvas.getContext("2d");
+            var slope = document.getElementById("slope");
+            var hit = document.getElementById("hit");
+            var rectanglesLable = document.getElementById("rectanglesList");
+            var started = false;
+
+            function Ball(x, y, dx, dy, radius, color) {
+                this.x = x;
+                this.y = y;
+                this.dx = dx;
+                this.dy = dy;
+                this.slope = dx / dy;
+                this.radius = radius;
+                this.fillColor = color;
+            }
+
+            function Rectangle(x, y, w, h, c) {
+                this.x = x;
+                this.y = y;
+                this.w = w;
+                this.h = h;
+                this.z = false;
+                this.fillColor = c
+            }
+
+            // array of ball objects
+            var balls = [];
+            var rects = []
+
+            var r1 = new Rectangle(150, 100, 250, 10, getColor());
+            rects.push(r1);
+            var r2 = new Rectangle(100, 150, 250, 10, getColor());
+            rects.push(r2);
+            var r3 = new Rectangle(400, 100, 10, 200, getColor());
+            rects.push(r3);
+            var r3 = new Rectangle(350, 150, 10, 100, getColor());
+            rects.push(r3);
+            var r4 = new Rectangle(100, 300, 310, 10, getColor());
+            rects.push(r4);
+            var r5 = new Rectangle(100, 150, 10, 150, getColor());
+            rects.push(r5);
+            var r5 = new Rectangle(200, 200, 50, 50, getColor());
+            r5.z = true
+            rects.push(r5);
+
+            function addBall() {
+
+                var color = getColor();
+                // get the size
+                var radius = parseFloat(document.getElementById("size").value);
+                // create ball
+                var ball = new Ball(getValue(), getValue(), getSpeed(), getSpeed(), radius, color);
+                // add to array
+                balls.push(ball);
+
+                if (!started) {
+                    // start the sim
+                    setTimeout(drawFrame, 20);
+                    started = true;
+                }
+            }
+
+            function clear() {
+                balls = [];
+            }
+
+            function getColor() {
+                var r = Math.floor((Math.random() * 255) + 1);
+                var g = Math.floor((Math.random() * 255) + 1);
+                var b = Math.floor((Math.random() * 255) + 1);
+                var x = "rgb(" + r + "," + g + "," + b + ")";
+                return x;
+            }
+
+            function getValue() {
+                var x = Math.floor((Math.random() * 50) + 1);
+                return x;
+            }
+
+            function getSpeed() {
+                var x = Math.floor((Math.random() * 3) + 1);
+                return x;
+            }
+
+            document.getElementById("drawingCanvas").onmousedown = function (e) {
+                canvasClick(e);
+            };
+            document.getElementById("addBall").onclick = function () {
+                addBall();
+            };
+            document.getElementById("clear").onclick = function () {
+                clear();
+            };
+
+            function drawFrame() {
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                context.beginPath();
+
+                // go through ball array
+                for (var i = 0; i < balls.length; i++) {
+                    var ball = balls[i];
+
+                    // add one so that we can accurately check for colision.
+                    // later on we will add for speed
+                    ball.x += ball.dx;
+                    ball.y += ball.dy;
+                    var dirX = ball.dx > 0 ? 1 : -1;
+                    var dirY = ball.dy > 0 ? 1 : -1
+                    var posX = ball.x + (ball.radius * dirX);
+                    var posY = ball.y + (ball.radius * dirY);
+                    slope, innerHtml = "";
+                    // hits canvas edge        
+                    if ((posX > canvas.width) || (posX < 0)) {
+                        ball.dx = -ball.dx;
+                    }
+
+                    if ((posY > canvas.height) || (posY < 0)) {
+                        ball.dy = -ball.dy; // * 0.96;
+                    }
+
+                    for (var r = 0; r < rects.length; r++) {
+                        var rX = rects[r];
+                        var left = rX.x;
+                        var right = rX.x + rX.w;
+                        var top = rX.y;
+                        var bottom = rX.y + rX.h;
+                        var offset = ball.radius;
+                        if ((posX >= left) && (posX <= right) && (posY >= top) && (posY <= bottom)) {
+                            hit.innerHTML = "hit at x: " + (posX) + ", y: " + (posY);
+
+                            // magically transport the ball out of the trap or zap it
+                            if (rX.z == true) {
+                                // remove the ball
+                                //balls.splice(i, 1);   
+                                // move ball back to starting poing and reset speed
+                                ball.x = 10;
+                                ball.y = 10
+                                ball.dx = getSpeed();
+                                ball.dy = getSpeed();
+                                continue;
+                            }
+                            if (posX <= right && posX >= (right - offset) && posY >= top && posY <= bottom) {
+                                ball.dx = -ball.dx;
+                            } else if (posX >= left && posX <= (left + offset) && posY >= top && posY <= bottom) {
+                                ball.dx = -ball.dx;
+                            } else if (posY >= top & posY <= (top + offset) && posX >= left && posX <= right) {
+                                ball.dy = -ball.dy;
+                            } else if (posY <= bottom && posY >= (bottom - offset) && posX >= left && posX <= right) {
+                                ball.dy = -ball.dy;
+                            } else {
+                                ball.dx = -ball.dx;
+                                ball.dy = -ball.dy;
+                            }
+                            break;
+                        }
+                    }
+
+                    context.beginPath();
+                    if (ball.radius == 1) {
+                        context.strokeStyle = ball.fillColor;
+                    } else {
+                        context.strokeStyle = "black";
+                        context.fillStyle = ball.fillColor;
+                    }
+
+                    // draw the ball
+                    context.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+                    context.lineWidth = 1;
+                    context.fill();
+                    context.stroke();
+
+                    for (var r = 0; r < rects.length; r++) {
+                        var rX = rects[r];
+                        context.beginPath();
+                        context.strokeStyle = "black";
+                        context.rect(rX.x, rX.y, rX.w, rX.h);
+                        context.fillStyle = rX.fillColor;
+                        context.stroke();
+                        context.fill();
+                    }
+                    context.stroke();
+                }
+                setTimeout(drawFrame, 20);
+            }
+
+            // draw the intial rectangles so that they are visible before we add balls.
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            for (var r = 0; r < rects.length; r++) {
+                var rX = rects[r];
+                context.beginPath();
+                context.lineWidth = 1;
+                context.strokeStyle = "black";
+                context.fillStyle = rX.fillColor;
+                context.rect(rX.x, rX.y, rX.w, rX.h);
+                context.stroke();
+                context.fill();
+                rectanglesLable.innerHTML = rectanglesLable.innerHTML + "x: " + rX.x + " y: " + rX.y + " w: " + rX.w + " h: " + rX.h + " <br/>";
+            }
+
+            function canvasClick(e) {
+                // Get the canvas click coordinates.
+                var clickX = e.pageX - canvas.offsetLeft;
+                var clickY = e.pageY - canvas.offsetTop;
+
+
+                // Look for the clicked ball.
+                for (var i in balls) {
+                    var ball = balls[i];
+                    if ((clickX > (ball.x - ball.radius)) && (clickX < (ball.x + ball.radius))) {
+                        if ((clickY > (ball.y - ball.radius)) && (clickY < (ball.y + ball.radius))) {
+                            // Change the clicked ball's speed.
+                            ball.dx = getSpeed();
+                            ball.dy = getSpeed();
+                            return;
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+<body>
+    <canvas id="drawingCanvas" width="1000" height="750"></canvas>
+    <br />
+    <button id="addBall">Add Ball</button>
+    <button id="clear">Clear Canvas</button>
+    <br />
+    <select id="size">
+        <option value="1">1</option>
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="15">15</option>
+        <option value="20">20</option>
+        <option value="25">25</option>
+    </select>
+    <br />
+    <label id="slope"></label>
+    <br />
+    <label id="hit"></label>
+    <br />
+    <label id="rectanglesList"></label>
+</body>
+</html>

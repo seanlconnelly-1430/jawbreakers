@@ -1,0 +1,55 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Canvas</title>
+    <script type="text/javascript">
+        function run() {
+            var canvas = document.getElementById("square");
+            var context = canvas.getContext("2d");
+            context.fillStyle = "#f00";
+            context.fillRect(0, 0, 10, 10);
+
+            canvas = document.getElementById("circle");
+            context = canvas.getContext('2d');
+            context.beginPath();
+            context.arc(5, 5, 5, 0, 2 * Math.PI, true);
+            context.fillStyle = "#00f";
+            context.fill();
+        }
+    </script>
+</head>
+<body onload="run()">
+    <div>
+        <canvas id="myCanvas" width="100" height="100"></canvas>   
+        This is a red square: <canvas id="square" width="10" height="10"></canvas>
+        This is a blue circle: <canvas id="circle" width="10" height="10"></canvas>
+    </div>
+</body>
+</html>
+
+
+<!--<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Canvas</title>
+    <script type="text/javascript">
+        function run() {
+            var canvas = document.getElementById("myCanvas");
+            var c = canvas.getContext('2d');
+            c.beginPath();
+            c.moveTo(100, 100);
+            c.lineTo(200, 200);
+            c.lineTo(100, 200);
+            c.fillStyle = "#00f";
+            c.fill();
+            c.stroke();
+        }
+    </script>
+</head>
+<body onload="run()">
+    <div>
+        <canvas id="Canvas1" width="100" height="100"></canvas>   
+    </div>
+</body>
+</html>
+-->
