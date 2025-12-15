@@ -1,0 +1,31 @@
+{
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": ["/images/*.{png,jpg,gif}", "/css/*"]
+  },
+  "routes": [
+    {
+      "route": "/index.html",
+      "rewrite": "/index.html"
+    },
+    {
+      "route": "/CanvasCircleCollision.html",
+      "rewrite": "/CanvasCircleCollision.html"
+    },
+    {
+      "route": "/Jawbreakers All JAvascript.html",
+      "rewrite": "/Jawbreakers All JAvascript.html"
+    },
+    {
+      "route": "/Jawbreakers.html",
+      "rewrite": "/Jawbreakers.html"
+    }
+  ],
+  "responseOverrides": {
+    "404": {
+      "rewrite": "/index.html",
+      "statusCode": 200
+    }
+  }
+}
+
