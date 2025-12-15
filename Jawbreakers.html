@@ -3,56 +3,44 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
-    <title></title>
-    <style>
-        canvas {
-            border: 1px solid black;
-            /*background: url(background.jpg) ;*/
-            background-color: white;
-        }
-
-        #controls {
-            float:left;
-        }
-
-        #playArea {
-            float: left;
-        }
-
-        #gameStatus {
-            color: red;
-            font-weight: bold;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jawbreakers - Jawbreakers</title>
+    <link rel="stylesheet" href="styles.css">
     <script src="game.js"></script>
 </head>
 <body>
-    <div id="controls">
-        <div id="extraLivesContainer">
-            <span>Extra Lives: </span><span id="extraLives"></span>
+    <a href="index.html" class="back-link">← Back to Games</a>
+    <div class="container jawbreakers-page">
+        <h1 class="game-title">🎯 Jawbreakers</h1>
+        <div class="game-wrapper">
+            <div id="controls">
+                <div id="extraLivesContainer">
+                    <span>Extra Lives: </span><span id="extraLives"></span>
+                </div>
+                <div id="scoreContainer">
+                    <span>Score: </span><span id="score"></span>&nbsp;&nbsp;&nbsp;&nbsp;<span id="gameStatus"></span>
+                </div>        
+                <div id="shotCountContainer">
+                    <span>Shots Fired: </span><span id="shotsFired"></span><br />
+                    <span>Hits: </span><span id="hits"></span><br />
+                    <span>Percentage: </span><span id="percentage"></span>
+                </div>        
+                <div id="newGameContainer">
+                    <button id="newGame">New Game</button>
+                </div>
+                <div id="modeContainer">
+                    <span>Check the box to just fly without asteroid. <input id="justFly" type="checkbox"></input></span>
+                </div>
+                <div id="instructionsContainer">
+                    <span><b>Thrust</b>: up arrow.<b>Fire</b>: space bar.</span>
+                    <br />
+                    <span><b>Rotate Left</b>: left arrow. <b>Rotate Right</b>: right arrow</span>
+                </div>
+            </div>
+            <div id="playArea">
+                <canvas id="drawingCanvas" width="1024" height="760"></canvas>
+            </div>
         </div>
-        <div id="scoreContainer">
-            <span>Score: </span><span id="score"></span>&nbsp;&nbsp;&nbsp;&nbsp;<span id="gameStatus"></span>
-        </div>        
-        <div id="shotCountContainer">
-            <span>Shots Fired: </span><span id="shotsFired"></span>&nbsp;&nbsp;&nbsp;
-            <span>Hits: </span><span id="hits"></span>&nbsp;&nbsp;&nbsp;
-            <span>Percentage: </span><span id="percentage"></span>
-        </div>        
-        <div id="newGameContainer">
-            <button id="newGame">New Game</button>
-        </div>
-        <div id="modeContainer">
-            <span>Check the box to just fly without asteroid. <input id="justFly" type="checkbox"></input></span>
-        </div>
-        <div id="instructionsContainer">
-            <span><b>Thrust</b>: up arrow.<b>Fire</b>: space bar.</span>
-            <br />
-            <span><b>Rotate Left</b>: left arrow. <b>Rotate Right</b>: right arrow</span>
-        </div>
-    </div>
-    <div id="playArea">
-        <canvas id="drawingCanvas" width="1024" height="760"></canvas>
     </div>        
 </body>
 </html>

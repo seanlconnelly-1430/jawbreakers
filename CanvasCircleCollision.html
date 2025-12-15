@@ -3,12 +3,9 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
-    <title></title>
-    <style>
-        canvas {
-            border: 1px solid black;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Circle Collision - Jawbreakers</title>
+    <link rel="stylesheet" href="styles.css">
     <script type="text/javascript">
         window.onload = function () {
             var canvas = document.getElementById("drawingCanvas");
@@ -206,38 +203,43 @@
         };
     </script>
 </head>
-<body>
-    <canvas id="drawingCanvas" width="500" height="500"></canvas>
-    <br />
-    <button id="addBall">Add Ball</button>
-    <button id="clear">Clear Canvas</button>
-    <br />
-    Size
-    <select id="size">
-        <option value="1">1</option>
-        <option value="5">5</option>
-        <option value="10">10</option>
-        <option value="15">15</option>
-        <option value="20">20</option>
-        <option value="25">25</option>
-    </select>
-    Amount
-    <select id="amount">
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4">4</option>
-        <option value="5">5</option>
-        <option value="10">10</option>
-        <option value="15">15</option>
-        <option value="20">20</option>
-        <option value="25">25</option>
-    </select>
-    <br />
-    <label id="numberOfBalls"></label>
-    <br />
-    <label id="hit"></label>
-    <br />
-    <label id="rectanglesList"></label>
+<body class="circle-collision">
+    <a href="index.html" class="back-link">← Back to Games</a>
+    <div class="container game-page">
+        <h1 class="game-title">⚪ Circle Collision</h1>
+        <div class="game-area">
+            <canvas id="drawingCanvas" width="500" height="500"></canvas>
+            <div class="controls">
+                <button id="addBall">Add Ball</button>
+                <button id="clear">Clear Canvas</button>
+                <label>Size:</label>
+                <select id="size">
+                    <option value="1">1</option>
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="15">15</option>
+                    <option value="20">20</option>
+                    <option value="25">25</option>
+                </select>
+                <label>Amount:</label>
+                <select id="amount">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="15">15</option>
+                    <option value="20">20</option>
+                    <option value="25">25</option>
+                </select>
+            </div>
+            <div class="info">
+                <div id="numberOfBalls"></div>
+                <div id="hit"></div>
+                <div id="rectanglesList"></div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
