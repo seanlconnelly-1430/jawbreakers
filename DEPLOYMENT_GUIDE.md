@@ -43,6 +43,7 @@ This guide will help you deploy your Jawbreakers game collection to Azure Static
    - After deployment completes (5-10 minutes), go to your Static Web App resource
    - Click on "Overview"
    - Find the "URL" field - this is your live site!
+   - https://lively-ocean-06ad20d10.3.azurestaticapps.net/index.html
 
 ### Method 2: Deploy via Azure CLI
 
