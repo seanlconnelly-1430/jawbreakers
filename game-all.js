@@ -142,7 +142,7 @@ function Particle(x, y, dx, dy, r, color, index, md) {
         c.beginPath();
         c.arc(this.x, this.y, this.r, 0, PI2);
         c.lineWidth = 1;
-        c.strokeStyle = "black";
+        c.strokeStyle = this.fillColor;
         c.fillStyle = this.fillColor;
         c.fill();
         c.stroke();
@@ -186,7 +186,7 @@ function Blast(x, y, dx, dy, r, color, a, index, md) {
         c.beginPath();
         c.arc(this.x, this.y, this.r, 0, PI2);
         c.lineWidth = 1;
-        c.strokeStyle = "red";
+        c.strokeStyle = this.fillColor;
         c.fillStyle = this.fillColor;
         c.fill();
         c.stroke();
@@ -216,7 +216,7 @@ function Ship(x, y, dx, dy, r, color) {
     
     this.fire = function () {
         if (blasts.length < blastLimit) {
-            var blast = new Blast(this.x, this.y, 6, 6, 2, 'yellow', this.rotation, blasts.length, blastDistance);
+            var blast = new Blast(this.x, this.y, 6, 6, 2, 'red', this.rotation, blasts.length, blastDistance);
             blasts.push(blast);                    
         }
     };
@@ -227,8 +227,10 @@ function Ship(x, y, dx, dy, r, color) {
     };
     
     this.explode = function () {
+        var colors = ['red', 'yellow', 'orange'];
         for (var p = 0; p < 50; p++) {
-            addParticle(this.x, this.y, 2, 'red', getMaxDistance(300));
+            var randomColor = colors[Math.floor(Math.random() * colors.length)];
+            addParticle(this.x, this.y, 2, randomColor, getMaxDistance(300));
         }
     };
     
@@ -342,7 +344,7 @@ function Asteroid(x, y, dx, dy, r, color) {
         c.beginPath();
         c.arc(this.x, this.y, this.r, 0, PI2);
         c.lineWidth = 1;
-        c.strokeStyle = "black";
+        c.strokeStyle = this.fillColor;
         c.fillStyle = this.fillColor;
         c.fill();
         c.stroke();
