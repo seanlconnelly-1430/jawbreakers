@@ -11,7 +11,7 @@ var blastLimit;
 var ship = null;
 var asteroids = [];
 var extraLives = 2;
-var shipColor = 'green';
+var shipColor = 'blue';
 var particles = [];
 var shotsFired = 0;
 var hits = 0;
