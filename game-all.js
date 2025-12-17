@@ -111,6 +111,7 @@ function UpdateShotMetrics() {
         percentageElement.innerHTML = Math.round(percentage * 100) + '%';
     }
 }
+
 function NewShip() {
     return new Ship(canvas.width / 2, canvas.height / 2, 0, 0, 20, shipColor);
 }
