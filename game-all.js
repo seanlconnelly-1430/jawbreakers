@@ -318,7 +318,7 @@ function Ship(x, y, dx, dy, r, color) {
         c.lineTo(x + r * Math.cos(rotation), y + r * Math.sin(rotation));
         c.lineTo(x - (r / 2) * Math.cos(rotation + 77), y - (r / 2) * Math.sin(rotation + 77));
         c.closePath();
-        c.fillStyle = 'green';
+        c.fillStyle = this.fillColor;
         c.fill();
         c.stroke();                
     }
