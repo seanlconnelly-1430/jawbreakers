@@ -201,5 +201,6 @@ az staticwebapp delete --name jawbreakers-games --resource-group jawbreakers-rg
 
 ## Deployment Endpoints > Azure and AWS
 - https://lively-ocean-06ad20d10.3.azurestaticapps.net/index.html
+   - Github actions deploye to Azure
 - http://jawbreakers-site.s3-website-us-east-1.amazonaws.com/index.html
    - aws s3 sync . s3://jawbreakers-site --exclude ".git/*" --exclude ".github/*"
