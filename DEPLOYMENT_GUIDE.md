@@ -199,3 +199,7 @@ az staticwebapp delete --name jawbreakers-games --resource-group jawbreakers-rg
 - [Pricing](https://azure.microsoft.com/pricing/details/app-service/static/)
 - [Azure Free Account](https://azure.microsoft.com/free/)
 
+## Deployment Endpoints > Azure and AWS
+- https://lively-ocean-06ad20d10.3.azurestaticapps.net/index.html
+- http://jawbreakers-site.s3-website-us-east-1.amazonaws.com/index.html
+   - aws s3 sync . s3://jawbreakers-site --exclude ".git/*" --exclude ".github/*"
