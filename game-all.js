@@ -46,6 +46,8 @@ window.onload = function () {
         document.getElementById("newGame").blur();
         newGame();                
     };
+
+    context.font = "14px Arial";    
     drawFrame();
 };
 
@@ -116,262 +118,282 @@ function NewShip() {
     return new Ship(canvas.width / 2, canvas.height / 2, 0, 0, 20, shipColor);
 }
 
-function Particle(x, y, dx, dy, r, color, index, md) {
-    this.x = x;
-    this.y = y;
-    this.dx = dx;
-    this.dy = dy;
-    this.r = r;
-    this.index = index;
-    this.fillColor = color;
-    this.distance = 0;
-    this.maxDistance = md;
-    
-    this.draw = function (c) {
-        this.distance += 5;
-        
-        // Wrap around screen edges
-        if (this.x > canvas.width) { this.x = 1; }
-        if (this.x < 0) { this.x = canvas.width; }
-        if (this.y > canvas.height) { this.y = 1; }
-        if (this.y < 0) { this.y = canvas.height; }
-        
-        this.x += this.dx;
-        this.y += this.dy;
-        
-        // Draw particle
-        c.beginPath();
-        c.arc(this.x, this.y, this.r, 0, PI2);
-        c.lineWidth = 1;
-        c.strokeStyle = this.fillColor;
-        c.fillStyle = this.fillColor;
-        c.fill();
-        c.stroke();
-        
-        if (this.distance > this.maxDistance) {
-            this.remove();
-        }
-    };
-    
-    this.remove = function () {
-        // Mark for removal instead of immediate removal
-        this.markedForRemoval = true;
-    };
+class Particle {
+    constructor(x, y, dx, dy, r, color, index, md) {
+        this.x = x;
+        this.y = y;
+        this.dx = dx;
+        this.dy = dy;
+        this.r = r;
+        this.index = index;
+        this.fillColor = color;
+        this.distance = 0;
+        this.maxDistance = md;
+
+        this.draw = function (c) {
+            this.distance += 5;
+
+            // Wrap around screen edges
+            if (this.x > canvas.width) { this.x = 1; }
+            if (this.x < 0) { this.x = canvas.width; }
+            if (this.y > canvas.height) { this.y = 1; }
+            if (this.y < 0) { this.y = canvas.height; }
+
+            this.x += this.dx;
+            this.y += this.dy;
+
+            // Draw particle
+            c.beginPath();
+            c.arc(this.x, this.y, this.r, 0, PI2);
+            c.lineWidth = 1;
+            c.strokeStyle = this.fillColor;
+            c.fillStyle = this.fillColor;
+            c.fill();
+            c.stroke();
+
+            if (this.distance > this.maxDistance) {
+                this.remove();
+            }
+        };
+
+        this.remove = function () {
+            // Mark for removal instead of immediate removal
+            this.markedForRemoval = true;
+        };
+    }
 };
 
-function Blast(x, y, dx, dy, r, color, a, index, md) {
-    this.x = x;
-    this.y = y;
-    this.dx = dx;
-    this.dy = dy;
-    this.r = r;
-    this.a = a;
-    this.index = index;
-    this.fillColor = color;
-    this.distance = 0;
-    this.maxDistance = md;
-    
-    this.draw = function (c) {
-        this.distance += 5;
-        
-        // Wrap around screen edges
-        if (this.x > canvas.width) { this.x = 1; }
-        if (this.x < 0) { this.x = canvas.width; }
-        if (this.y > canvas.height) { this.y = 1; }
-        if (this.y < 0) { this.y = canvas.height; }
+class Blast {
+    constructor(x, y, dx, dy, r, color, a, index, md) {
+        this.x = x;
+        this.y = y;
+        this.dx = dx;
+        this.dy = dy;
+        this.r = r;
+        this.a = a;
+        this.index = index;
+        this.fillColor = color;
+        this.distance = 0;
+        this.maxDistance = md;
 
-        this.x += this.dx * Math.cos(this.a);
-        this.y += this.dy * Math.sin(this.a);
-        
-        // Draw blast
-        c.beginPath();
-        c.arc(this.x, this.y, this.r, 0, PI2);
-        c.lineWidth = 1;
-        c.strokeStyle = this.fillColor;
-        c.fillStyle = this.fillColor;
-        c.fill();
-        c.stroke();
-        
-        if (this.distance > this.maxDistance) {
-            this.remove();
-        }
-    };
-    
-    this.remove = function () {
-        // Mark for removal instead of immediate removal
-        this.markedForRemoval = true;
-    };
+        this.draw = function (c) {
+            this.distance += 5;
+
+            // Wrap around screen edges
+            if (this.x > canvas.width) { this.x = 1; }
+            if (this.x < 0) { this.x = canvas.width; }
+            if (this.y > canvas.height) { this.y = 1; }
+            if (this.y < 0) { this.y = canvas.height; }
+
+            this.x += this.dx * Math.cos(this.a);
+            this.y += this.dy * Math.sin(this.a);
+
+            // Draw blast
+            c.beginPath();
+            c.arc(this.x, this.y, this.r, 0, PI2);
+            c.lineWidth = 1;
+            c.strokeStyle = this.fillColor;
+            c.fillStyle = this.fillColor;
+            c.fill();
+            c.stroke();
+
+            if (this.distance > this.maxDistance) {
+                this.remove();
+            }
+        };
+
+        this.remove = function () {
+            // Mark for removal instead of immediate removal
+            this.markedForRemoval = true;
+        };
+
+        this.quadrant = function () {
+            return getQuadrant(this.x, this.y);
+        };
+    }
 };
 
-function Ship(x, y, dx, dy, r, color) {
-    this.t = 0;
-    this.a = 0;
-    this.x = x;
-    this.y = y;
-    this.dx = dx;
-    this.dy = dy;
-    this.r = r;
-    this.rotation = 0;
-    this.rotationDirection = 0;
-    this.fillColor = color;
-    
-    this.fire = function () {
-        if (blasts.length < blastLimit) {
-            var blast = new Blast(this.x, this.y, 6, 6, 2, 'red', this.rotation, blasts.length, blastDistance);
-            blasts.push(blast);                    
-        }
-    };
-    
-    this.hit = function () {
-        this.explode();                
-        ship = null;
-    };
-    
-    this.explode = function () {
-        var colors = ['red', 'yellow', 'orange'];
-        for (var p = 0; p < 50; p++) {
-            var randomColor = colors[Math.floor(Math.random() * colors.length)];
-            addParticle(this.x, this.y, 2, randomColor, getMaxDistance(300));
-        }
-    };
-    
-    this.thrustOn = function () {
-        this.a = this.rotation;
-        this.t = 1;
-    };
-    
-    this.thrustOff = function () {
+class Ship {
+    constructor(x, y, dx, dy, r, color) {
         this.t = 0;
-    };
-    
-    this.setRotateRight = function (x) {
-        this.rotationDirection = x ? 1 : 0;
-    };
-    
-    this.setRotateLeft = function (x) {
-        this.rotationDirection = x ? -1 : 0;
-    };
-    this.draw = function (c) {
-        var x = this.x;
-        var y = this.y;
-        var r = this.r;
-        var rotation = this.rotation;
-        var a = this.a;
-                 
-        // Update rotation
-        if (this.rotationDirection === 1) { 
-            this.rotation += rotationRate; 
-        } else if (this.rotationDirection === -1) { 
-            this.rotation -= rotationRate; 
-        }
+        this.a = 0;
+        this.x = x;
+        this.y = y;
+        this.dx = dx;
+        this.dy = dy;
+        this.r = r;
+        this.rotation = 0;
+        this.rotationDirection = 0;
+        this.fillColor = color;
 
-        // Normalize rotation
-        if (Math.abs(this.rotation) >= PI2) {
-            this.rotation = 0;
-        }
-
-        // Update velocity based on thrust
-        if (this.t === 1) {
-            a = rotation;
-            if (this.dx <= maxshipSpeed && this.dy <= maxshipSpeed) {
-                this.dx += acceleration;
-                this.dy += acceleration;
+        this.fire = function () {
+            if (blasts.length < blastLimit) {
+                var blast = new Blast(this.x, this.y, 6, 6, 2, 'red', this.rotation, blasts.length, blastDistance);
+                blasts.push(blast);
             }
-        } else if (this.t === 0) {
-            if (this.dx > minShipSpeed && this.dy > minShipSpeed) {
-                this.dx -= decceleration;
-                this.dy -= decceleration;
-            }
-        }
+        };
 
-        // Update position
-        if (this.dx > 0 && this.dy > 0) {
-            x += this.dx * Math.cos(a);
-            y += this.dy * Math.sin(a);
-            this.x = x;
-            this.y = y;
-            
-            // Draw thrust effect
+        this.hit = function () {
+            this.explode();
+            ship = null;
+        };
+
+        this.explode = function () {
+            var colors = ['red', 'yellow', 'orange'];
+            for (var p = 0; p < 50; p++) {
+                var randomColor = colors[Math.floor(Math.random() * colors.length)];
+                addParticle(this.x, this.y, 2, randomColor, getMaxDistance(300));
+            }
+        };
+
+        this.thrustOn = function () {
+            this.a = this.rotation;
+            this.t = 1;
+        };
+
+        this.thrustOff = function () {
+            this.t = 0;
+        };
+
+        this.setRotateRight = function (x) {
+            this.rotationDirection = x ? 1 : 0;
+        };
+
+        this.setRotateLeft = function (x) {
+            this.rotationDirection = x ? -1 : 0;
+        };
+        this.draw = function (c) {
+            var x = this.x;
+            var y = this.y;
+            var r = this.r;
+            var rotation = this.rotation;
+            var a = this.a;
+
+            // Update rotation
+            if (this.rotationDirection === 1) {
+                this.rotation += rotationRate;
+            } else if (this.rotationDirection === -1) {
+                this.rotation -= rotationRate;
+            }
+
+            // Normalize rotation
+            if (Math.abs(this.rotation) >= PI2) {
+                this.rotation = 0;
+            }
+
+            // Update velocity based on thrust
             if (this.t === 1) {
-                c.beginPath();
-                c.moveTo(x, y);
-                c.lineTo(x + (r / 2) * Math.cos(a), y + (r / 2) * Math.sin(a));
-                c.lineTo(x - (r / 2) * Math.cos(a), y - (r / 2) * Math.sin(a));
-                c.lineWidth = 5;
-                c.strokeStyle = 'red';
-                c.stroke();
+                a = rotation;
+                if (this.dx <= maxshipSpeed && this.dy <= maxshipSpeed) {
+                    this.dx += acceleration;
+                    this.dy += acceleration;
+                }
+            } else if (this.t === 0) {
+                if (this.dx > minShipSpeed && this.dy > minShipSpeed) {
+                    this.dx -= decceleration;
+                    this.dy -= decceleration;
+                }
             }
-        }
 
-        // Wrap around screen edges
-        if (x > canvas.width) { this.x = 1; }
-        if (x < 0) { this.x = canvas.width; }
-        if (y > canvas.height) { this.y = 1; }
-        if (y < 0) { this.y = canvas.height; }
+            // Update position
+            if (this.dx > 0 && this.dy > 0) {
+                x += this.dx * Math.cos(a);
+                y += this.dy * Math.sin(a);
+                this.x = x;
+                this.y = y;
 
-        // Draw ship body                
-        c.beginPath();
-        c.strokeStyle = 'black';
-        c.lineWidth = 1;
-        c.moveTo(x, y);       
-        c.lineTo(x + (r / 2) * Math.cos(rotation + 77), y + (r / 2) * Math.sin(rotation + 77));
-        c.lineTo(x + r * Math.cos(rotation), y + r * Math.sin(rotation));
-        c.lineTo(x - (r / 2) * Math.cos(rotation + 77), y - (r / 2) * Math.sin(rotation + 77));
-        c.closePath();
-        c.fillStyle = this.fillColor;
-        c.fill();
-        c.stroke();                
+                // Draw thrust effect
+                if (this.t === 1) {
+                    c.beginPath();
+                    c.moveTo(x, y);
+                    c.lineTo(x + (r / 2) * Math.cos(a), y + (r / 2) * Math.sin(a));
+                    c.lineTo(x - (r / 2) * Math.cos(a), y - (r / 2) * Math.sin(a));
+                    c.lineWidth = 5;
+                    c.strokeStyle = 'red';
+                    c.stroke();
+                }
+            }
+
+            // Wrap around screen edges
+            if (x > canvas.width) { this.x = 1; }
+            if (x < 0) { this.x = canvas.width; }
+            if (y > canvas.height) { this.y = 1; }
+            if (y < 0) { this.y = canvas.height; }
+
+            // Draw ship body                
+            c.beginPath();
+            c.strokeStyle = 'black';
+            c.lineWidth = 1;
+            c.moveTo(x, y);
+            c.lineTo(x + (r / 2) * Math.cos(rotation + 77), y + (r / 2) * Math.sin(rotation + 77));
+            c.lineTo(x + r * Math.cos(rotation), y + r * Math.sin(rotation));
+            c.lineTo(x - (r / 2) * Math.cos(rotation + 77), y - (r / 2) * Math.sin(rotation + 77));
+            c.closePath();
+            c.fillStyle = this.fillColor;
+            c.fill();
+            c.stroke();
+        };
+
+        this.quadrant = function () {
+            return getQuadrant(this.x, this.y);
+        };
     }
 }
 
-function Asteroid(x, y, dx, dy, r, color) {
-    this.x = x;
-    this.y = y;
-    this.dx = dx;
-    this.dy = dy;
-    this.r = r;
-    this.fillColor = color;
-    
-    this.draw = function (c) {
-        // Wrap around screen edges
-        if (this.x > canvas.width) { this.x = 1; }
-        if (this.x < 0) { this.x = canvas.width; }
-        if (this.y > canvas.height) { this.y = 1; }
-        if (this.y < 0) { this.y = canvas.height; }
-        
-        this.x += this.dx;
-        this.y += this.dy;
-        
-        c.beginPath();
-        c.arc(this.x, this.y, this.r, 0, PI2);
-        c.lineWidth = 1;
-        c.strokeStyle = this.fillColor;
-        c.fillStyle = this.fillColor;
-        c.fill();
-        c.stroke();
-    };
-    
-    this.hit = function (index) {
-        score += Math.floor(this.r);
-        scoreElement.innerHTML = score;
-        
-        var newRadius = this.r / 2.5;
-        
-        // Mark for removal instead of immediate removal
-        this.markedForRemoval = true;
-        
-        // Create smaller asteroids if large enough
-        if (newRadius >= 7) {
-            for (var i = 0; i < 3; i++) {
-                addAsteroids(newRadius, this.x, this.y);
-            }                    
-        }
-        
-        // Create explosion particles
-        for (var p = 0; p < 5; p++) {
-            addParticle(this.x, this.y, 1, 'black', getMaxDistance(particleDistance));
-        }
-    };
+class Asteroid {
+    constructor(x, y, dx, dy, r, color) {
+        this.x = x;
+        this.y = y;
+        this.dx = dx;
+        this.dy = dy;
+        this.r = r;
+        this.fillColor = color;
+
+        this.draw = function (c) {
+            // Wrap around screen edges
+            if (this.x > canvas.width) { this.x = 1; }
+            if (this.x < 0) { this.x = canvas.width; }
+            if (this.y > canvas.height) { this.y = 1; }
+            if (this.y < 0) { this.y = canvas.height; }
+
+            this.x += this.dx;
+            this.y += this.dy;
+
+            c.beginPath();
+            c.arc(this.x, this.y, this.r, 0, PI2);
+            c.lineWidth = 1;
+            c.strokeStyle = this.fillColor;
+            c.fillStyle = this.fillColor;
+            c.fill();
+            c.stroke();
+        };
+
+        this.hit = function (index) {
+            score += Math.floor(this.r);
+            scoreElement.innerHTML = score;
+
+            var newRadius = this.r / 2.5;
+
+            // Mark for removal instead of immediate removal
+            this.markedForRemoval = true;
+
+            // Create smaller asteroids if large enough
+            if (newRadius >= 7) {
+                for (var i = 0; i < 3; i++) {
+                    addAsteroids(newRadius, this.x, this.y);
+                }
+            }
+
+            // Create explosion particles
+            for (var p = 0; p < 5; p++) {
+                addParticle(this.x, this.y, 1, 'black', getMaxDistance(particleDistance));
+            }
+        };
+
+        this.quadrant = function () {
+            return getQuadrant(this.x, this.y);
+        };
+    }
 }
 
 function addAsteroids(r, x, y) {
@@ -398,6 +420,7 @@ function addParticle(x, y, r, c, md) {
 function drawFrame() {
     // Clear canvas
     context.clearRect(0, 0, canvas.width, canvas.height);
+    addLabels();
     
     // Draw ship
     if (ship !== null) {
@@ -431,16 +454,14 @@ function drawFrame() {
     // Collision detection
     for (var a = 0, aLen = asteroids.length; a < aLen; a++) {                
         var asteroid = asteroids[a];
-        if (!asteroid || asteroid.markedForRemoval) continue;
-        var asteroidQuadrant = getQuadrant(asteroid.x, asteroid.y);
+        if (!asteroid || asteroid.markedForRemoval) continue;        
 
         // Check blast hits on asteroids
         for (var b = 0, bLen = blasts.length; b < bLen; b++) {
             var blast = blasts[b];
             if (!blast || blast.markedForRemoval) continue;
-            
-            var blastQuadrant = getQuadrant(blast.x, blast.y);            
-            if (blastQuadrant === asteroidQuadrant) {
+                                
+            if (blast.quadrant() === asteroid.quadrant()) {
                 if (hit(blast.x, blast.y, blast.r, asteroid.x, asteroid.y, asteroid.r)) {
                     blast.remove();
                     asteroid.hit(a);
@@ -452,9 +473,8 @@ function drawFrame() {
         }
         
         // Check ship collision with asteroid
-        if (ship !== null && !asteroid.markedForRemoval) {        
-            var shipQuadrant = getQuadrant(ship.x, ship.y);
-            if (shipQuadrant === asteroidQuadrant) {
+        if (ship !== null && !asteroid.markedForRemoval) {                    
+            if (ship.quadrant() === asteroid.quadrant()) {
                 if (hit(ship.x, ship.y, ship.r, asteroid.x, asteroid.y, asteroid.r)) {
                     ship.hit();
                     UpdateLives();
@@ -544,6 +564,19 @@ function getQuadrant(x, y) {
   }
 
   return quadrant;
+}
+
+// Add visual labels to the quadrants
+function addLabels() {
+    // Set the color for the text
+    context.fillStyle = "#000";
+    let centerX = canvas.width / 2;
+    let centerY = canvas.height / 2;  
+    // Draw the labels on the canvas
+    context.fillText("Q1", centerX + (centerX / 2) , centerY + (centerY / 2));
+    context.fillText("Q2", centerX / 2 , centerY + (centerY / 2));
+    context.fillText("Q3", centerX / 2 , centerY / 2);
+    context.fillText("Q4", centerX + (centerX / 2) , centerY / 2);
 }
 
 function onKeyDown(event) {
