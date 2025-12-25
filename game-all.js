@@ -369,7 +369,7 @@ function Asteroid(x, y, dx, dy, r, color) {
         
         // Create explosion particles
         for (var p = 0; p < 5; p++) {
-            addParticle(this.x, this.y, 1, 'white', getMaxDistance(particleDistance));
+            addParticle(this.x, this.y, 1, 'black', getMaxDistance(particleDistance));
         }
     };
 }
@@ -432,32 +432,39 @@ function drawFrame() {
     for (var a = 0, aLen = asteroids.length; a < aLen; a++) {                
         var asteroid = asteroids[a];
         if (!asteroid || asteroid.markedForRemoval) continue;
-        
+        var asteroidQuadrant = getQuadrant(asteroid.x, asteroid.y);
+
         // Check blast hits on asteroids
         for (var b = 0, bLen = blasts.length; b < bLen; b++) {
             var blast = blasts[b];
             if (!blast || blast.markedForRemoval) continue;
             
-            if (hit(blast.x, blast.y, blast.r, asteroid.x, asteroid.y, asteroid.r)) {
-                blast.remove();
-                asteroid.hit(a);
-                hits++;
-                UpdateShotMetrics();
-                break;
+            var blastQuadrant = getQuadrant(blast.x, blast.y);            
+            if (blastQuadrant === asteroidQuadrant) {
+                if (hit(blast.x, blast.y, blast.r, asteroid.x, asteroid.y, asteroid.r)) {
+                    blast.remove();
+                    asteroid.hit(a);
+                    hits++;
+                    UpdateShotMetrics();
+                    break;
+                }
             }
         }
         
         // Check ship collision with asteroid
-        if (ship !== null && !asteroid.markedForRemoval) {
-            if (hit(ship.x, ship.y, ship.r, asteroid.x, asteroid.y, asteroid.r)) {
-                ship.hit();
-                UpdateLives();
-                if (extraLives < 0) {
-                    GameOver();
+        if (ship !== null && !asteroid.markedForRemoval) {        
+            var shipQuadrant = getQuadrant(ship.x, ship.y);
+            if (shipQuadrant === asteroidQuadrant) {
+                if (hit(ship.x, ship.y, ship.r, asteroid.x, asteroid.y, asteroid.r)) {
+                    ship.hit();
+                    UpdateLives();
+                    if (extraLives < 0) {
+                        GameOver();
+                        break;
+                    }
+                    setTimeout(function () { ship = NewShip(); }, 3000);
                     break;
                 }
-                setTimeout(function () { ship = NewShip(); }, 3000);
-                break;
             }
         }
     }
@@ -520,6 +527,23 @@ function getDY() {
     
 function getRandomAngle() {
     return Math.random() * PI2;
+}
+
+function getQuadrant(x, y) {
+  let quadrant = null;
+  let centerX = canvas.width / 2;
+  let centerY = canvas.height / 2;  
+  if (x >= centerX && y >= centerY) {
+    quadrant = "Q1";
+  } else if (x <= centerX && y >= centerY) {
+    quadrant = "Q2";
+  } else if (x <= centerX && y <= centerY) {
+    quadrant = "Q3";
+  } else if (x >= centerX && y <= centerY) {
+    quadrant = "Q4";
+  }
+
+  return quadrant;
 }
 
 function onKeyDown(event) {
