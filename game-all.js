@@ -420,7 +420,7 @@ function addParticle(x, y, r, c, md) {
 function drawFrame() {
     // Clear canvas
     context.clearRect(0, 0, canvas.width, canvas.height);
-    addLabels();
+    // addLabels();
     
     // Draw ship
     if (ship !== null) {
